@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine ❤️</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    position: relative;
+    min-height: 100vh;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+      url(https://i.imgur.com/2LsIKFl.jpeg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: top center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    font-family: Arial, sans-serif;
+    color: white;
+  }
+
+  /* PC tweak — does NOT affect mobile */
+  @media (min-width: 900px) {
+    body {
+      background-position: center top;
+      background-size: cover;
+    }
+  }
+
+  .card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 90%;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    margin-top: 25px;
+    position: relative;
+  }
+
+  button {
+    padding: 14px 32px;
+    font-size: 18px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+  }
+
+  #yesBtn {
+    background: #ff4d6d;
+    color: white;
+    position: relative; /* so z-index works */
+    z-index: 2;          /* above the No button */
+  }
+
+  #noBtn {
+    background: #ccc;
+    color: black;
+    position: static;     /* stays in flex until first interaction */
+    transition: left 0.35s ease, top 0.35s ease;
+    z-index: 1;
+  }
+
+  #success {
+    display: none;
+    font-size: 22px;
+    margin-top: 20px;
+  }
+
+  .confetti {
+    position: fixed;
+    top: -10px;
+    width: 10px;
+    height: 10px;
+    animation: fall linear forwards;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(110vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>Vee, will you be my Valentine? ❤️</h1>
+
+  <div class="buttons" id="btnArea">
+    <button id="yesBtn">Yes 😍</button>
+    <button id="noBtn">No 🙃</button>
+  </div>
+
+  <div id="success">
+    Yayyy 🥹❤️  
+    I knew you’d say yes.
+  </div>
+</div>
+
+<script>
+  const noBtn = document.getElementById('noBtn');
+  const yesBtn = document.getElementById('yesBtn');
+  const btnArea = document.getElementById('btnArea');
+  const success = document.getElementById('success');
+
+  let escaped = false;
+
+  // Function to move No button across the screen
+  function moveNoButton() {
+    const margin = 20;
+    const maxX = window.innerWidth - noBtn.offsetWidth - margin;
+    const maxY = window.innerHeight - noBtn.offsetHeight - margin;
+
+    const x = Math.random() * maxX + margin;
+    const y = Math.random() * maxY + margin;
+
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  }
+
+  // First interaction: detach No button from flex container
+  function escapeNoButton(e) {
+    e.preventDefault();
+
+    if (!escaped) {
+      escaped = true;
+
+      // Get current position relative to viewport
+      const rect = noBtn.getBoundingClientRect();
+
+      // Detach from flex container and attach to body
+      document.body.appendChild(noBtn);
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = rect.left + 'px';
+      noBtn.style.top = rect.top + 'px';
+      noBtn.style.zIndex = '1'; // lower than Yes
+    }
+
+    // Move it anywhere on the screen
+    moveNoButton();
+  }
+
+  // Desktop hover
+  noBtn.addEventListener('mouseenter', escapeNoButton);
+
+  // Mobile touch
+  noBtn.addEventListener('touchstart', escapeNoButton);
+
+  // Confetti function
+  function confetti() {
+  const music = document.getElementById('bgMusic');
+  music.currentTime = 0;
+  music.volume = 1;
+  music.play().catch(() => {});
+
+  const colors = ['#ff4d6d','#ffd166','#06d6a0','#4cc9f0','#c77dff'];
+
+  for (let i = 0; i < 120; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+
+  // Yes button click
+ yesBtn.addEventListener('click', () => {
+  playDriveAudio();
+  confetti();
+  success.style.display = 'block';
+  noBtn.style.display = 'none';
+});
+
+
+</script>
+<audio id="bgMusic" preload="auto" playsinline>
+  <source src="blinding-lights.mp3" type="audio/mpeg">
+</audio>
+<script>
+async function playDriveAudio() {
+  const audio = document.getElementById('bgMusic');
+
+  if (audio.dataset.loaded) {
+    audio.currentTime = 0;
+    audio.play();
+    return;
+  }
+
+  const response = await fetch(
+    "https://drive.google.com/uc?export=download&id=1IEUd_hEFO6oZaeA1LRL3SjvDPI11jshP"
+  );
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+
+  audio.src = url;
+  audio.volume = 1;
+  audio.dataset.loaded = "true";
+
+  audio.play();
+}
+</script>
+
+</body>
+</html>
