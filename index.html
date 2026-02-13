@@ -1,300 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Be My Valentine ❤️</title>
 
 <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    position: relative;
+  body{
     min-height: 100vh;
-    background-image:
+    position: relative;
+    background:
       linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-      url(https://i.imgur.com/2LsIKFl.jpeg);
+      url("https://i.imgur.com/2LsIKFl.jpeg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: top center;
 
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    overflow: hidden;
+    padding-bottom: 50px;
 
+    overflow: hidden;
     font-family: Arial, sans-serif;
     color: white;
   }
 
-  /* PC tweak — does NOT affect mobile */
   @media (min-width: 900px) {
-    body {
-      background-position: center top;
-      background-size: cover;
-    }
+    body { background-position: center top; }
   }
 
-  .card {
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(10px);
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 90%;
-  }
+  .card{
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
 
-  h1 {
-  margin-bottom: 20px;
-  transition: opacity 0.8s ease;
+  max-width: 90%;
+  width: 520px;
+  height: 280px; /* 👈 LOCK HEIGHT (instead of min-height) */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  position: relative;
+  z-index: 5;
 }
 
-  .buttons {
+
+  /* temporarily disable blur during the success animation (reduces stutter) */
+  .card.no-blur{
+    backdrop-filter: none !important;
+  }
+
+  h1{
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .buttons{
     display: flex;
     gap: 40px;
     justify-content: center;
-    margin-top: 25px;
-    position: relative;
+    transition: opacity 0.6s ease, transform 0.6s ease;
   }
 
- button {
-  padding: 14px 32px;
-  font-size: 18px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
+  button{
+    padding: 14px 32px;
+    font-size: 18px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-  transition: opacity 0.8s ease, transform 0.8s ease; /* fade + optional scale */
-}
-
-  #yesBtn {
+  #yesBtn{
     background: #ff4d6d;
-    color: white;
-    position: relative; /* so z-index works */
-    z-index: 2;          /* above the No button */
+    color: #fff;
+    position: relative;
+    z-index: 3; /* above No at start */
   }
 
-  #noBtn {
+  #noBtn{
     background: #ccc;
-    color: black;
-    position: static;     /* stays in flex until first interaction */
-    transition: left 0.35s ease, top 0.35s ease;
-    z-index: 1;
+    color: #000;
+    position: static; /* stays in flex until first interaction */
+    z-index: 2;
+    transition: left 0.35s ease, top 0.35s ease, transform 0.2s ease, opacity 0.4s ease;
   }
 
-  #success {
-  display: block;          /* keep block so transition works */
-  opacity: 0;              /* start invisible */
-  font-size: 22px;
-  margin-top: 20px;
-  transition: opacity 1s ease; /* smooth fade */
-}
-
-.confetti {
-  position: fixed;
-  top: -50px;
-  pointer-events: none;
-  font-size: 16px;
-  animation-name: fall;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-}
-
-@keyframes fall {
-  0% {
-    transform: translateY(0) translateX(0) rotate(0deg);
-    opacity: 1;
-  }
-  50% {
-    transform: translateY(50vh) translateX(20px) rotate(180deg);
-  }
-  100% {
-    transform: translateY(110vh) translateX(-20px) rotate(360deg);
+  .fade-out{
     opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    pointer-events: none;
   }
-}
 
+  /* Success message: always in layout, just hidden -> smooth */
+  #success{
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 700ms ease;
+    font-size: 22px;
+    line-height: 1.3;
+    pointer-events: none;
+    will-change: opacity;
+  }
+  #success.show{
+    opacity: 1;
+    visibility: visible;
+  }
 
+  /* HEART CONFETTI */
+  .confetti{
+    position: fixed;
+    top: -50px;
+    pointer-events: none;
+    z-index: 9998; /* above acrylic box */
+    animation: fall linear forwards;
+    will-change: transform, opacity;
+  }
+
+  @keyframes fall{
+    0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+    50%  { transform: translateY(55vh) translateX(calc(var(--drift) * 0.5)) rotate(180deg); }
+    100% { transform: translateY(115vh) translateX(var(--drift)) rotate(360deg); opacity: 0; }
+  }
 </style>
 </head>
 
 <body>
 
 <div class="card">
-  <h1>Vee, will you be my valentine? ❤️</h1>
+  <h1 id="question">Vee, will you be my Valentine? ❤️</h1>
 
-  <div class="buttons" id="btnArea">
-    <button id="yesBtn">Yes 😍</button>
-    <button id="noBtn">No 🙃</button>
+  <div class="buttons" id="buttons">
+    <button id="yesBtn" type="button">Yes 😍</button>
+    <button id="noBtn" type="button">No 🙃</button>
   </div>
 
-  <div id="success">
-    Yayyy 🥹❤️  
-    I knew you’d say yes.
-  </div>
+  <div id="success">Yayyy 🥹❤️<br/>I knew you’d say yes.</div>
 </div>
 
-<script>
-  const noBtn = document.getElementById('noBtn');
-  const yesBtn = document.getElementById('yesBtn');
-  const btnArea = document.getElementById('btnArea');
-  const success = document.getElementById('success');
-
-  let escaped = false;
-
-  // Function to move No button across the screen
-  let noBtnScale = 1; // start at normal size
-
-function escapeNoButton(e) {
-  e.preventDefault();
-
-  // shrink each attempt
-  noBtnScale *= 0.95; // shrinks 5% each time
-  noBtn.style.transform = `scale(${noBtnScale})`;
-
-  // first move from flex container to body
-  if (noBtn.style.position !== 'fixed') {
-    const rect = noBtn.getBoundingClientRect();
-    document.body.appendChild(noBtn);
-    noBtn.style.position = 'fixed';
-    noBtn.style.left = rect.left + 'px';
-    noBtn.style.top = rect.top + 'px';
-    noBtn.style.zIndex = '1';
-  }
-
-  // random new position
-  const margin = 20;
-  const maxX = window.innerWidth - noBtn.offsetWidth - margin;
-  const maxY = window.innerHeight - noBtn.offsetHeight - margin;
-
-  const x = Math.random() * maxX + margin;
-  const y = Math.random() * maxY + margin;
-
-  noBtn.style.left = x + 'px';
-  noBtn.style.top = y + 'px';
-}
-
-
-  // Desktop hover
-  noBtn.addEventListener('mouseenter', escapeNoButton);
-
-  // Mobile touch
-  noBtn.addEventListener('touchstart', escapeNoButton);
-
-  // Confetti function
-function confetti() {
-  const colors = ['#ff4d6d','#ffd166','#06d6a0','#4cc9f0','#c77dff'];
-
-  for (let i = 0; i < 120; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + 'vw';
-    c.style.fontSize = (12 + Math.random() * 24) + 'px';
-    c.style.color = colors[Math.floor(Math.random() * colors.length)];
-    c.style.animationDuration = (2 + Math.random() * 2) + 's';
-    c.style.transform = `rotate(${Math.random() * 360}deg)`;
-    c.textContent = '❤️';
-
-    document.body.appendChild(c);
-
-    // Remove after animation
-    setTimeout(() => c.remove(), (2 + Math.random() * 2) * 1000);
-  }
-}
-  // Yes button click
-yesBtn.addEventListener('click', () => {
-  const music = document.getElementById('bgMusic');
-  music.currentTime = 0;
-  music.play().catch(() => {});
-  fadeInMusic(music, 2000);
-
-  confetti(); // fluttering hearts
-
-  // Fade out question
-  const question = document.querySelector('h1');
-  question.style.transition = 'opacity 0.8s ease';
-  question.style.opacity = '0';
-
-  // Fade out buttons
-  yesBtn.style.opacity = '0';
-  yesBtn.style.transform = 'scale(0.8)';
-
-  noBtn.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-  noBtn.style.opacity = '0';
-  noBtn.style.transform = 'scale(0.8) translate(0,0)';
-
-  setTimeout(() => {
-    yesBtn.style.display = 'none';
-    noBtn.style.display = 'none';
-  }, 800);
-
-  // Smooth fade-in success message
-  const success = document.getElementById('success');
-  setTimeout(() => {
-    success.style.opacity = '1';
-  }, 900); // slightly after buttons disappear
-});
-
-function fadeInMusic(audio, duration = 2000) {
-  audio.volume = 0;
-  const step = 0.05;
-  const interval = duration * step / 1; // smooth steps
-  const fade = setInterval(() => {
-    if (audio.volume < 1) {
-      audio.volume = Math.min(audio.volume + step, 1);
-    } else {
-      clearInterval(fade);
-    }
-  }, interval);
-}
-
-function fadeOutMusic(audio, duration = 2000) {
-  const step = 0.05;
-  const interval = duration * step / 1;
-  const fade = setInterval(() => {
-    if (audio.volume > 0) {
-      audio.volume = Math.max(audio.volume - step, 0);
-    } else {
-      audio.pause();
-      clearInterval(fade);
-    }
-  }, interval);
-}
-
-
-</script>
 <audio id="bgMusic" preload="auto" playsinline>
   <source src="blinding-lights.mp3" type="audio/mpeg">
 </audio>
-<script>
-async function playDriveAudio() {
-  const audio = document.getElementById('bgMusic');
 
-  if (audio.dataset.loaded) {
-    audio.currentTime = 0;
-    audio.play();
-    return;
+<script>
+  const noBtn = document.getElementById("noBtn");
+  const yesBtn = document.getElementById("yesBtn");
+  const question = document.getElementById("question");
+  const buttons = document.getElementById("buttons");
+  const success = document.getElementById("success");
+  const music = document.getElementById("bgMusic");
+  const card = document.querySelector(".card");
+
+  let noBtnScale = 1;
+  let escaped = false;
+  let locked = false;
+
+  function fadeInMusic(audio, duration = 2000) {
+    audio.volume = 0;
+    const step = 0.04;
+    const interval = 25; // stable tick
+    const steps = Math.max(1, Math.floor(duration / interval));
+    let i = 0;
+
+    const t = setInterval(() => {
+      i++;
+      audio.volume = Math.min(1, i / steps);
+      if (audio.volume >= 1) clearInterval(t);
+    }, interval);
   }
 
-  const response = await fetch(
-    "https://drive.google.com/uc?export=download&id=1IEUd_hEFO6oZaeA1LRL3SjvDPI11jshP"
-  );
+  function confettiHearts() {
+    const colors = ["#ff4d6d","#ffd166","#06d6a0","#4cc9f0","#c77dff"];
 
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
+    for (let i = 0; i < 130; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.textContent = "❤️";
 
-  audio.src = url;
-  audio.volume = 1;
-  audio.dataset.loaded = "true";
+      c.style.left = (Math.random() * 100) + "vw";
+      c.style.fontSize = (12 + Math.random() * 22) + "px";
+      c.style.color = colors[Math.floor(Math.random() * colors.length)];
 
-  audio.play();
+      const drift = (Math.random() * 80 - 40).toFixed(2) + "vw"; // -40vw..+40vw
+      c.style.setProperty("--drift", drift);
+
+      const dur = (2.2 + Math.random() * 1.8).toFixed(2);
+      c.style.animationDuration = dur + "s";
+
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), (Number(dur) + 0.25) * 1000);
+    }
+  }
+
+  function hideNoButtonSmooth() {
+  const liveNoBtn = document.getElementById("noBtn");
+  if (!liveNoBtn) return;
+
+  liveNoBtn.style.pointerEvents = "none";
+  liveNoBtn.style.transition = "opacity 0.35s ease, transform 0.35s ease";
+  liveNoBtn.style.opacity = "0";
+  liveNoBtn.style.transform = (liveNoBtn.style.transform || "") + " scale(0.85)";
+
+  setTimeout(() => {
+    liveNoBtn.remove(); // removes it completely wherever it is
+  }, 380);
 }
+
+  function escapeNoButton(e) {
+    e.preventDefault();
+    if (locked) return;
+
+    // shrink each attempt
+    noBtnScale *= 0.95;
+    noBtn.style.transform = `scale(${noBtnScale})`;
+
+    // detach on first interaction so it can move across full page
+    if (!escaped) {
+      escaped = true;
+      const rect = noBtn.getBoundingClientRect();
+      document.body.appendChild(noBtn);
+
+      noBtn.style.position = "fixed";
+      noBtn.style.left = rect.left + "px";
+      noBtn.style.top = rect.top + "px";
+      noBtn.style.zIndex = "9999"; // above card + confetti
+    }
+
+    const margin = 18;
+    const maxX = window.innerWidth - noBtn.offsetWidth - margin;
+    const maxY = window.innerHeight - noBtn.offsetHeight - margin;
+
+    const x = Math.random() * Math.max(0, maxX) + margin;
+    const y = Math.random() * Math.max(0, maxY) + margin;
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+  }
+
+  // Desktop + Mobile behavior for NO
+  noBtn.addEventListener("mouseenter", escapeNoButton);
+  noBtn.addEventListener("touchstart", escapeNoButton, { passive: false });
+
+yesBtn.addEventListener("click", async () => {
+  if (locked) return;
+  locked = true;
+
+  // fade out question + buttons
+  question.classList.add("fade-out");
+  buttons.classList.add("fade-out");
+
+  // ✅ hide No immediately (even if it escaped already)
+  hideNoButtonSmooth();
+
+  // music best-effort
+  try {
+    music.currentTime = 0;
+    await music.play();
+    fadeInMusic(music, 2000);
+  } catch (_) {}
+
+  setTimeout(() => {
+    question.style.display = "none";
+    buttons.style.display = "none";
+
+    // show success
+    success.style.visibility = "visible";
+    success.classList.remove("show");
+    success.offsetHeight;
+    success.classList.add("show");
+
+    // ✅ confetti starts exactly when success appears
+    confettiHearts();
+  }, 650);
+
+  // WhatsApp redirect after 15 seconds
+  setTimeout(() => {
+    const phoneNumber = "2347070278733";
+    const message = encodeURIComponent("Yes, I'll be your valentine 💖");
+    location.href = `https://wa.me/${phoneNumber}?text=${message}`;
+  }, 15000);
+});
+
 </script>
 
 </body>
 </html>
-
