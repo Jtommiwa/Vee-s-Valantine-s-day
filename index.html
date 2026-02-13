@@ -120,7 +120,7 @@
 <body>
 
 <div class="card">
-  <h1>Vee, will you be my valentine? ❤️</h1>
+  <h1>Vee, will you be my Valentine? ❤️</h1>
 
   <div class="buttons" id="btnArea">
     <button id="yesBtn">Yes 😍</button>
@@ -142,39 +142,37 @@
   let escaped = false;
 
   // Function to move No button across the screen
-  function moveNoButton() {
-    const margin = 20;
-    const maxX = window.innerWidth - noBtn.offsetWidth - margin;
-    const maxY = window.innerHeight - noBtn.offsetHeight - margin;
+  let noBtnScale = 1; // start at normal size
 
-    const x = Math.random() * maxX + margin;
-    const y = Math.random() * maxY + margin;
+function escapeNoButton(e) {
+  e.preventDefault();
 
-    noBtn.style.left = x + 'px';
-    noBtn.style.top = y + 'px';
+  // shrink each attempt
+  noBtnScale *= 0.95; // shrinks 5% each time
+  noBtn.style.transform = `scale(${noBtnScale})`;
+
+  // first move from flex container to body
+  if (noBtn.style.position !== 'fixed') {
+    const rect = noBtn.getBoundingClientRect();
+    document.body.appendChild(noBtn);
+    noBtn.style.position = 'fixed';
+    noBtn.style.left = rect.left + 'px';
+    noBtn.style.top = rect.top + 'px';
+    noBtn.style.zIndex = '1';
   }
 
-  // First interaction: detach No button from flex container
-  function escapeNoButton(e) {
-    e.preventDefault();
+  // random new position
+  const margin = 20;
+  const maxX = window.innerWidth - noBtn.offsetWidth - margin;
+  const maxY = window.innerHeight - noBtn.offsetHeight - margin;
 
-    if (!escaped) {
-      escaped = true;
+  const x = Math.random() * maxX + margin;
+  const y = Math.random() * maxY + margin;
 
-      // Get current position relative to viewport
-      const rect = noBtn.getBoundingClientRect();
+  noBtn.style.left = x + 'px';
+  noBtn.style.top = y + 'px';
+}
 
-      // Detach from flex container and attach to body
-      document.body.appendChild(noBtn);
-      noBtn.style.position = 'fixed';
-      noBtn.style.left = rect.left + 'px';
-      noBtn.style.top = rect.top + 'px';
-      noBtn.style.zIndex = '1'; // lower than Yes
-    }
-
-    // Move it anywhere on the screen
-    moveNoButton();
-  }
 
   // Desktop hover
   noBtn.addEventListener('mouseenter', escapeNoButton);
@@ -193,13 +191,13 @@ function confetti() {
     c.style.fontSize = (12 + Math.random() * 24) + 'px';
     c.style.color = colors[Math.floor(Math.random() * colors.length)];
     c.style.animationDuration = (2 + Math.random() * 2) + 's';
-    c.style.animationDelay = (Math.random() * 2) + 's'; // random start
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
     c.textContent = '❤️';
 
     document.body.appendChild(c);
 
-    // Remove after animation finishes
-    setTimeout(() => c.remove(), (2 + Math.random() * 2 + 2) * 1000);
+    // Remove after animation
+    setTimeout(() => c.remove(), (2 + Math.random() * 2) * 1000);
   }
 }
   // Yes button click
@@ -272,4 +270,3 @@ async function playDriveAudio() {
 
 </body>
 </html>
-
